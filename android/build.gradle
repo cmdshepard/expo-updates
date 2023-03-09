@@ -1,140 +1,120 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'maven'
+
+group = 'host.exp.exponent'
+version = '0.10.15'
+
+apply from: "../scripts/create-manifest-android.gradle"
 
 buildscript {
-  ext {
-    minSdkVersion = 21
-    targetSdkVersion = 30
-    compileSdkVersion = 30
+  // Simple helper that allows the root project to override versions declared by this library.
+  ext.safeExtGet = { prop, fallback ->
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+  }
 
-    dbFlowVersion = '4.2.4'
-    buildToolsVersion = '30.0.5'
-    supportLibVersion = '29.0.0'
-    kotlinVersion = '1.4.21'
-    gradlePluginVersion = '4.1.2'
-    gradleDownloadTaskVersion = '3.4.3'
-    repositoryUrl = "file:${System.env.HOME}/.m2/repository/"
-  }
   repositories {
-    google()
     mavenCentral()
-    jcenter()
   }
+
   dependencies {
-    classpath "com.android.tools.build:gradle:${gradlePluginVersion}"
-    classpath 'com.google.gms:google-services:4.3.5'
-    classpath "de.undercouch:gradle-download-task:$gradleDownloadTaskVersion"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${safeExtGet('kotlinVersion', '1.4.21')}")
   }
 }
 
-// WHEN_DISTRIBUTING_REMOVE_FROM_HERE
-// We don't need linter on turtle.
-plugins {
-  id "com.diffplug.spotless" version "5.14.1"
+// Upload android library to maven with javadoc and android sources
+configurations {
+  deployerJars
 }
-// WHEN_DISTRIBUTING_REMOVE_TO_HERE
 
-allprojects {
+// Creating sources with comments
+task androidSourcesJar(type: Jar) {
+  classifier = 'sources'
+  from android.sourceSets.main.java.srcDirs
+}
+
+// Put the androidSources and javadoc to the artifacts
+artifacts {
+  archives androidSourcesJar
+}
+
+uploadArchives {
   repositories {
-    // For non-detach
-    maven {
-      url "$rootDir/maven"
+    mavenDeployer {
+      configuration = configurations.deployerJars
+      repository(url: mavenLocal().url)
     }
-    // For old expoviews to work
-    maven {
-      url "$rootDir/versioned-abis/expoview-abi43_0_0/maven"
-    }
-    maven {
-      url "$rootDir/versioned-abis/expoview-abi42_0_0/maven"
-    }
-    maven {
-      url "$rootDir/versioned-abis/expoview-abi41_0_0/maven"
-    }
-    maven {
-      url "$rootDir/versioned-abis/expoview-abi40_0_0/maven"
-    }
-    maven {
-      url "$rootDir/versioned-abis/maven"
-    }
-    google()
-    mavenCentral()
-    jcenter()
-    maven {
-      // Local Maven repo containing AARs with JSC built for Android
-      url "$rootDir/../node_modules/jsc-android/dist"
-    }
-    maven {
-      // Local expo-camera Maven repo containing our slightly modified
-      // Google's cameraview from expo/cameraview.
-      url "$rootDir/../packages/expo-camera/android/maven"
-    }
-    flatDir {
-      dirs 'libs'
-      // dirs project(':expoview').file('libs')
-    }
-    // Using www.jitpack.io instead of plain jitpack.io due to
-    // https://github.com/jitpack/jitpack.io/issues/4002
-    maven { url "https://www.jitpack.io" }
+  }
+}
 
-    // Want this last so that we never end up with a stale cache
-    mavenLocal()
+android {
+  compileSdkVersion safeExtGet("compileSdkVersion", 30)
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
 
-  configurations.all {
-    // WHEN_DISTRIBUTING_REMOVE_FROM_HERE
-    resolutionStrategy.dependencySubstitution {
-      substitute module("com.facebook.react:react-native:+") with project(":ReactAndroid")
-
-      // Gradle needs another hint (apart from plain dependency substitution)
-      // to know that it should first evaluate the replacing project before resolving
-      // classpaths etc. Without this block an error is thrown when running tests
-      // in a project that depends on react-native (eg. expo-updates):
-      //   > No matching configuration of project :ReactAndroid was found.
-      //   > The consumer was configured to find a runtime of a component,
-      //   > as well as attribute 'com.android.build.api.attributes.BuildTypeAttr'
-      //   > with value 'debug' but:
-      //   >   - None of the consumable configurations have attributes.
-      all {
-        if (requested.displayName == "com.facebook.react:react-native:+") {
-          evaluationDependsOn(":ReactAndroid")
-        }
+  defaultConfig {
+    minSdkVersion safeExtGet("minSdkVersion", 21)
+    targetSdkVersion safeExtGet("targetSdkVersion", 30)
+    versionCode 31
+    versionName '0.10.15'
+    consumerProguardFiles("proguard-rules.pro")
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    // uncomment below to export the database schema when making changes
+    /* javaCompileOptions {
+      annotationProcessorOptions {
+        arguments += ["room.schemaLocation":
+                      "$projectDir/src/androidTest/schemas".toString()]
       }
-    }
-    // WHEN_DISTRIBUTING_REMOVE_TO_HERE
+    } */
+  }
+  lintOptions {
+    abortOnError false
+  }
+  testOptions {
+    unitTests.includeAndroidResources = true
+  }
+  sourceSets {
+    androidTest.assets.srcDirs += files("$projectDir/src/androidTest/schemas".toString())
   }
 }
 
-// This var needs to be defined outside any "remove_from_here" comment blocks
-// because the "*/" in there could affect the resulted code by closing the comment to early.
-def ktlintTarget = '**/*.kt'
+dependencies {
+  implementation project(':expo-modules-core')
+  implementation project(':expo-structured-headers')
+  implementation project(':expo-updates-interface')
+  implementation project(':expo-manifests')
+  implementation project(':expo-json-utils')
+  //noinspection GradleDynamicVersion
+  implementation "com.facebook.react:react-native:+"
 
-// WHEN_DISTRIBUTING_REMOVE_FROM_HERE
-// We don't need linter on turtle.
-subprojects {
-  plugins.apply("com.diffplug.spotless")
-  spotless {
-    format 'gradle', {
-      target '*.gradle'
-      trimTrailingWhitespace()
-      indentWithSpaces()
-      endWithNewline()
-    }
-    kotlin {
-      target(ktlintTarget)
-      ktlint("0.41.0").userData([
-        "disabled_rules"           : "no-wildcard-imports,import-ordering",
-        "charset"                  : "utf-8",
-        "end_of_line"              : "lf",
-        "indent_size"              : "2",
-        "indent_style"             : "space",
-        "insert_final_newline"     : "true",
-        "tab_width"                : "2",
-        "trim_trailing_whitespace" : "true"
-      ])
-      trimTrailingWhitespace()
-      indentWithSpaces()
-      endWithNewline()
-    }
-  }
+  def room_version = "2.1.0"
+
+  implementation "androidx.room:room-runtime:$room_version"
+  annotationProcessor "androidx.room:room-compiler:$room_version"
+
+  implementation("com.squareup.okhttp3:okhttp:3.12.1")
+  implementation("com.squareup.okhttp3:okhttp-urlconnection:3.12.1")
+  implementation("com.squareup.okio:okio:1.15.0")
+  implementation("commons-io:commons-io:2.6")
+  implementation("org.apache.commons:commons-lang3:3.9")
+
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'androidx.test:core:1.0.0'
+  testImplementation 'org.mockito:mockito-core:1.10.19'
+  testImplementation 'io.mockk:mockk:1.10.6'
+
+  androidTestImplementation 'androidx.test:runner:1.1.0'
+  androidTestImplementation 'androidx.test:core:1.0.0'
+  androidTestImplementation 'androidx.test:rules:1.1.0'
+  androidTestImplementation 'org.mockito:mockito-android:3.7.7'
+  androidTestImplementation 'io.mockk:mockk-android:1.10.6'
+  androidTestImplementation "androidx.room:room-testing:$room_version"
+
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${safeExtGet('kotlinVersion', '1.4.21')}"
 }
-// WHEN_DISTRIBUTING_REMOVE_TO_HERE
+repositories {
+  mavenCentral()
+}

@@ -1,112 +1,274 @@
-<!-- Banner Image -->
+# expo-updates
 
-<p align="center">
-  <a href="https://expo.io/">
-    <img alt="expo sdk" height="128" src="./.github/resources/banner.png">
-    <h1 align="center">Expo</h1>
-  </a>
-</p>
+`expo-updates` fetches and manages updates to your app stored on a remote server.
 
-<p align="center">
-   <a aria-label="SDK version" href="https://www.npmjs.com/package/expo" target="_blank">
-    <img alt="Expo SDK version" src="https://img.shields.io/npm/v/expo.svg?style=flat-square&label=SDK&labelColor=000000&color=4630EB" />
-  </a>
-  <a aria-label="Join our forums" href="https://forums.expo.io" target="_blank">
-    <img alt="Forums" src="https://img.shields.io/badge/Ask%20Questions%20-blue.svg?style=flat-square&logo=discourse&logoWidth=15&labelColor=000000&color=4630EB" />
-  </a>
-  <a aria-label="Join our Discord" href="https://discord.gg/4gtbPAdpaE" target="_blank">
-    <img alt="Discord" src="https://img.shields.io/discord/695411232856997968.svg?style=flat-square&labelColor=000000&color=4630EB&logo=discord&logoColor=FFFFFF&label=" />
-  </a>
-  <a aria-label="Expo is free to use" href="https://github.com/expo/expo/blob/master/LICENSE" target="_blank">
-    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-success.svg?style=flat-square&color=33CC12" target="_blank" />
-  </a>
-  <a aria-label="expo downloads" href="http://www.npmtrends.com/expo" target="_blank">
-    <img alt="Downloads" src="https://img.shields.io/npm/dm/expo.svg?style=flat-square&labelColor=gray&color=33CC12&label=Downloads" />
-  </a>
-</p>
+## API documentation
 
-<p align="center">
-  <a aria-label="try expo with snack" href="https://snack.expo.io"><b>Try Expo in the Browser</b></a>
- |
-  <a aria-label="expo documentation" href="https://docs.expo.io">Read the Documentation 📚</a>
-</p>
+- [Documentation for the master branch](https://github.com/expo/expo/blob/master/docs/pages/versions/unversioned/sdk/updates.md)
+- [Documentation for the latest stable release](https://docs.expo.io/versions/latest/sdk/updates/)
 
-<p>
-  <a aria-label="Follow @expo on Twitter" href="https://twitter.com/intent/follow?screen_name=expo" target="_blank">
-    <img  alt="Twitter: expo" src="https://img.shields.io/twitter/follow/expo.svg?style=flat-square&label=Follow%20%40expo&logo=TWITTER&logoColor=FFFFFF&labelColor=00aced&logoWidth=15&color=lightgray" target="_blank" />
-  </a>
-  <a aria-label="Follow Expo on Medium" href="https://blog.expo.io">
-    <img align="right" alt="Medium: exposition" src="https://img.shields.io/badge/Learn%20more%20on%20our%20blog-lightgray.svg?style=flat-square" target="_blank" />
-  </a>
-</p>
-  
----
+Additionally, for an introduction to this module and tooling around OTA updates, you can watch [this talk](https://www.youtube.com/watch?v=Si909la3rLk) by [@esamelson](https://github.com/esamelson) from ReactEurope 2020.
 
-- [📚 Documentation](#-documentation)
-- [🗺 Project Layout](#-project-layout)
-- [🏅 Badges](#-badges)
-- [👏 Contributing](#-contributing)
-- [❓ FAQ](#-faq)
-- [💙 The Team](#-the-team)
-- [License](#license)
+## Compatibility
 
-Expo is an open-source platform for making universal native apps that run on Android, iOS, and the web. It includes a universal runtime and libraries that let you build native apps by writing React and JavaScript. This repository is where the Expo client software is developed, and includes the client apps, modules, apps, and more. The [Expo CLI](https://github.com/expo/expo-cli) repository contains the Expo development tools.
+This module requires `expo-cli@3.17.6` or later; make sure your global installation is at least this version before proceeding.
 
-[Click here to view the Expo Community Guidelines](https://expo.io/guidelines). Thank you for helping keep the Expo community open and welcoming!
+Additionally, this module is only compatible with Expo SDK 37 or later. For bare workflow projects, if the `expo` package is installed, it must be version `37.0.2` or later.
 
-## 📚 Documentation
+Finally, this module is not compatible with ExpoKit. Make sure you do not have `expokit` listed as a dependency in package.json before adding this module.
 
-<p>Learn about building and deploying universal apps <a aria-label="expo documentation" href="https://docs.expo.io">in our official docs!</a></p>
+## Upgrading
 
-- [Getting Started](https://docs.expo.io/)
-- [API Reference](https://docs.expo.io/versions/latest/)
-- [Using Custom Native Modules](https://docs.expo.io/bare/exploring-bare-workflow/)
+If you're upgrading from `expo-updates@0.1.x`, you can opt into the **no-publish workflow**. In this workflow, release builds of both iOS and Android apps will create and embed a new update at build-time from the JS code currently on disk, rather than embedding a copy of the most recently published update. For instructions and more information, see the [CHANGELOG](https://github.com/expo/expo/blob/master/packages/expo-updates/CHANGELOG.md). (For new projects, the no-publish workflow is enabled by default.)
 
-## 🗺 Project Layout
+# Installation in managed Expo projects
 
-- [`packages`](/packages) All the source code for the Unimodules, if you want to edit a library or just see how it works this is where you'll find it.
-- [`apps`](/apps) This is where you can find Expo projects which are linked to the development Unimodules. You'll do most of your testing in here.
-- [`docs`](/docs) The source code for **https://docs.expo.io**
-- [`templates`](/templates) The template projects you get when you run `expo start`
-- [`react-native-lab`](/react-native-lab) This is our fork of `react-native`. We keep this very close to the upstream but sometimes need to add quick fixes locally before they can land.
-- [`guides`](/guides) In-depth tutorials for advanced topics like contributing to the client.
-- [`android`](/android) contains the Android project.
-- [`home`](/home) contains the JavaScript source code of the app.
-- [`ios`](/ios) contains the iOS project.
-- [`ios/Exponent.xcworkspace`](/ios) is the Xcode workspace. Always open this instead of `Exponent.xcodeproj` because the workspace also loads the CocoaPods dependencies.
-- [`tools`](/tools) contains build and configuration tools.
-- [`template-files`](/template-files) contains templates for files that require private keys. They are populated using the keys in `template-files/keys.json`.
-- [`template-files/ios/dependencies.json`](/template-files/ios/dependencies.json) specifies the CocoaPods dependencies of the app.
+For [managed](https://docs.expo.io/versions/latest/introduction/managed-vs-bare/) Expo projects, please follow the installation instructions in the [API documentation for the latest stable release](https://docs.expo.io/versions/latest/sdk/updates/).
 
-## 🏅 Badges
+# Installation in bare React Native projects
 
-Let everyone know your app can be run instantly in the _Expo Go_ app!
-<br/>
+Learn how to install expo-updates in your project in the [Installing expo-updates documentation page](https://docs.expo.io/bare/installing-updates/).
 
-[![runs with Expo Go](https://img.shields.io/badge/Runs%20with%20Expo%20Go-000.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.io/client)
+## Embedded Assets
 
-[![runs with Expo Go](https://img.shields.io/badge/Runs%20with%20Expo%20Go-4630EB.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.io/client)
+In certain situations, assets that are `require`d by your JavaScript are embedded into your application binary by Xcode/Android Studio. This allows these assets to load when the packager server running locally on your machine is not available.
 
-```md
-[![runs with Expo Go](https://img.shields.io/badge/Runs%20with%20Expo%20Go-000.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.io/client)
+Debug builds of Android apps do not, by default, have any assets bundled into the APK; they are always loaded at runtime from the Metro packager.
 
-[![runs with Expo Go](https://img.shields.io/badge/Runs%20with%20Expo%20Go-4630EB.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.io/client)
+Debug builds of iOS apps built for the iOS simulator also do not have assets bundled into the app. They are loaded at runtime from Metro. Debug builds of iOS apps built for a real device **do** have assets bundled into the app binary, so they can be loaded from disk if they cannot be loaded from the packager at runtime.
+
+Release builds of both iOS and Android apps include a full embedded update, including manifest, JavaScript bundle, and all imported assets. This is critical to ensure that your app can load for all users immediately upon installation, without needing to talk to a server first.
+
+## Configuration
+
+Some build-time configuration options are available to allow your app to update automatically on launch. On iOS, these properties are set as keys in `Expo.plist` and on Android as `meta-data` tags in `AndroidManifest.xml`, adjacent to the tags added during installation.
+
+On Android, you may also define these properties at runtime by passing a `Map` as the second parameter of `UpdatesController.initialize()`. If provided, the values in this Map will override any values specified in `AndroidManifest.xml`. On iOS, you may set these properties at runtime by calling `[UpdatesController.sharedInstance setConfiguration:]` at any point _before_ calling `start` or `startAndShowLaunchScreen`, and the values in this dictionary will override Expo.plist.
+
+| iOS plist/dictionary key | Android Map key | Android meta-data name         | Default | Required? |
+| ------------------------ | --------------- | ------------------------------ | ------- | --------- |
+| `EXUpdatesEnabled`       | `enabled`       | `expo.modules.updates.ENABLED` | `true`  | ❌        |
+
+Whether updates are enabled. Setting this to `false` disables all update functionality, all module methods, and forces the app to load with the manifest and assets bundled into the app binary.
+
+| iOS plist/dictionary key | Android Map key | Android meta-data name                 | Default | Required? |
+| ------------------------ | --------------- | -------------------------------------- | ------- | --------- |
+| `EXUpdatesURL`           | `updateUrl`     | `expo.modules.updates.EXPO_UPDATE_URL` | (none)  | ✅        |
+
+The URL to the remote server where the app should check for updates. A request to this URL should return a valid manifest object for the latest available update and tells expo-updates how to fetch the JS bundle and other assets that comprise the update. (Example: for apps published with `expo publish`, this URL would be `https://exp.host/@username/slug`.)
+
+| iOS plist/dictionary key | Android Map key | Android meta-data name                  | Default | Required?                                                     |
+| ------------------------ | --------------- | --------------------------------------- | ------- | ------------------------------------------------------------- |
+| `EXUpdatesSDKVersion`    | `sdkVersion`    | `expo.modules.updates.EXPO_SDK_VERSION` | (none)  | (exactly one of `sdkVersion` or `runtimeVersion` is required) |
+
+The SDK version string to send under the `Expo-SDK-Version` header in the manifest request. Required for apps hosted on Expo's server.
+
+| iOS plist/dictionary key  | Android Map key  | Android meta-data name                      | Default | Required?                                                     |
+| ------------------------- | ---------------- | ------------------------------------------- | ------- | ------------------------------------------------------------- |
+| `EXUpdatesRuntimeVersion` | `runtimeVersion` | `expo.modules.updates.EXPO_RUNTIME_VERSION` | (none)  | (exactly one of `sdkVersion` or `runtimeVersion` is required) |
+
+The Runtime Version string to send under the `Expo-Runtime-Version` header in the manifest request.
+
+| iOS plist/dictionary key  | Android Map key  | Android meta-data name                      | Default   | Required? |
+| ------------------------- | ---------------- | ------------------------------------------- | --------- | --------- |
+| `EXUpdatesReleaseChannel` | `releaseChannel` | `expo.modules.updates.EXPO_RELEASE_CHANNEL` | `default` | ❌        |
+
+The release channel string to send under the `Expo-Release-Channel` header in the manifest request.
+
+| iOS plist/dictionary key | Android Map key | Android meta-data name                              | Default  | Required? |
+| ------------------------ | --------------- | --------------------------------------------------- | -------- | --------- |
+| `EXUpdatesCheckOnLaunch` | `checkOnLaunch` | `expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH` | `ALWAYS` | ❌        |
+
+The condition under which `expo-updates` should automatically check for (and download, if one exists) an update upon app launch. Possible values are `ALWAYS`, `NEVER` (if you want to exclusively control updates via this module's JS API), or `WIFI_ONLY` (if you want the app to automatically download updates only if the device is on an unmetered Wi-Fi connection when it launches).
+
+| iOS plist/dictionary key | Android Map key | Android meta-data name                             | Default | Required? |
+| ------------------------ | --------------- | -------------------------------------------------- | ------- | --------- |
+| `EXUpdatesLaunchWaitMs`  | `launchWaitMs`  | `expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS` | `0`     | ❌        |
+
+The number of milliseconds `expo-updates` should delay the app launch and stay on the splash screen while trying to download an update, before falling back to a previously downloaded version. Setting this to `0` will cause the app to always launch with a previously downloaded update and will result in the fastest app launch possible.
+
+## Customizing automatic setup
+
+In `expo-updates@0.9.0` and above, we support automatic installation of the module in the iOS AppDelegate.m and Android MainApplication.java classes. If you want to customize the installation, e.g. to enable updates only in some build variants, you can add custom logic in AppDelegate/MainApplication and set the following keys to `false` in order to disable the automatic setup.
+
+| iOS Expo.plist key   | Android meta-data name            | Default | Required? |
+| -------------------- | --------------------------------- | ------- | --------- |
+| `EXUpdatesAutoSetup` | `expo.modules.updates.AUTO_SETUP` | `true`  | ❌        |
+
+# Removing pre-installed expo-updates
+
+Projects created by `expo init` and `expo eject` come with expo-updates pre-installed, because we anticipate most users will want this functionality. However, if you do not intend to use OTA updates, you can disable or uninstall the module.
+
+## Disabling expo-updates
+
+If you disable updates, the module will stay installed in case you ever want to use it in the future, but none of the OTA-updating code paths will ever be executed in your builds. To disable OTA updates, add the `EXUpdatesEnabled` key to Expo.plist with a boolean value of `NO`, and add the following line to AndroidManifest.xml:
+
+```xml
+<meta-data android:name="expo.modules.updates.ENABLED" android:value="false"/>
 ```
 
-## 👏 Contributing
+## Uninstalling expo-updates (for expo-updates >= 0.9.0)
 
-If you like Expo and want to help make it better then check out our [contributing guide](/CONTRIBUTING.md)! Check out the [Expo CLI repo](http://github.com/expo/expo-cli) to work on the Expo CLI, and various other universal development tools.
+Uninstalling the module will entirely remove all expo-updates related code from your codebase. To do so, complete the following steps:
 
-## ❓ FAQ
+- Remove `expo-updates` from your package.json and reinstall your node modules.
+- Delete Expo.plist from your Xcode project and file system.
+- Remove all `meta-data` tags with `expo.modules.updates` in the `android:name` field from AndroidManifest.xml.
 
-If you have questions about Expo and want answers, then check out our [Frequently Asked Questions](https://docs.expo.io/versions/latest/introduction/faq/)!
+## Uninstalling expo-updates (for expo-updates < 0.9.0)
 
-If you still have questions you can ask them on our [forums](https://forums.expo.io) or on Twitter [@Expo](https://twitter.com/expo).
+Uninstalling the module will entirely remove all expo-updates related code from your codebase. To do so, complete the following steps:
 
-## 💙 The Team
+- Remove `expo-updates` from your package.json and reinstall your node modules.
+- Remove the line `../node_modules/expo-updates/scripts/create-manifest-ios.sh` from the "Bundle React Native code and images" Build Phase in Xcode.
+- Delete Expo.plist from your Xcode project and file system.
+- Remove the line `apply from: "../../node_modules/expo-updates/scripts/create-manifest-android.gradle"` from `android/app/build.gradle`.
+- Remove all `meta-data` tags with `expo.modules.updates` in the `android:name` field from AndroidManifest.xml.
+- Apply the following three diffs:
 
-Curious about who makes Expo? Here are our [team members](https://expo.io/about)!
+#### `AppDelegate.h`
 
-## License
+Remove`EXUpdatesAppControllerDelegate` as a protocol of your `AppDelegate`.
 
-The Expo source code is made available under the [MIT license](LICENSE). Some of the dependencies are licensed differently, with the BSD license, for example.
+```diff
+-#import <EXUpdates/EXUpdatesAppController.h>
+ #import <React/RCTBridgeDelegate.h>
+ #import <UMCore/UMAppDelegateWrapper.h>
+
+-@interface AppDelegate : UMAppDelegateWrapper <RCTBridgeDelegate, EXUpdatesAppControllerDelegate>
++@interface AppDelegate : UMAppDelegateWrapper <RCTBridgeDelegate>
+
+ @property (nonatomic, strong) UMModuleRegistryAdapter *moduleRegistryAdapter;
+ @property (nonatomic, strong) UIWindow *window;
+```
+
+#### `AppDelegate.m`
+
+```diff
+ #import <UMReactNativeAdapter/UMNativeModulesProxy.h>
+ #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
+
+-@interface AppDelegate ()
+-
+-@property (nonatomic, strong) NSDictionary *launchOptions;
+-
+-@end
+-
+ @implementation AppDelegate
+
+...
+
+ - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+ {
+   self.moduleRegistryAdapter = [[UMModuleRegistryAdapter alloc] initWithModuleRegistryProvider:[[UMModuleRegistryProvider alloc] init]];
+-  self.launchOptions = launchOptions;
+-
+-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+-#ifdef DEBUG
+-  [self initializeReactNativeApp];
+-#else
+-  EXUpdatesAppController *controller = [EXUpdatesAppController sharedInstance];
+-  controller.delegate = self;
+-  [controller startAndShowLaunchScreen:self.window];
+-#endif
+-
+-  [super application:application didFinishLaunchingWithOptions:launchOptions];
+-
+-  return YES;
+-}
+-
+-- (RCTBridge *)initializeReactNativeApp
+-{
+-  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:self.launchOptions];
++  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@"YOUR-APP-NAME" initialProperties:nil];
+   rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
+
++  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+   UIViewController *rootViewController = [UIViewController new];
+   rootViewController.view = rootView;
+   self.window.rootViewController = rootViewController;
+   [self.window makeKeyAndVisible];
+
+-  return bridge;
++  [super application:application didFinishLaunchingWithOptions:launchOptions];
++
++  return YES;
+ }
+
+...
+
+ #ifdef DEBUG
+   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+ #else
+-  return [[EXUpdatesAppController sharedInstance] launchAssetUrl];
++  return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+ #endif
+ }
+
+-- (void)appController:(EXUpdatesAppController *)appController didStartWithSuccess:(BOOL)success
+-{
+-  appController.bridge = [self initializeReactNativeApp];
+-}
+-
+ @end
+```
+
+#### `MainApplication.java`
+
+```diff
+-import android.net.Uri;
+-import expo.modules.updates.UpdatesController;
+-import javax.annotation.Nullable;
+-
+ public class MainApplication extends Application implements ReactApplication {
+   private final ReactModuleRegistryProvider mModuleRegistryProvider = new ReactModuleRegistryProvider(
+     new BasePackageList().getPackageList(),
+
+...
+
+     protected String getJSMainModuleName() {
+       return "index";
+     }
+-
+-    @Override
+-    protected @Nullable String getJSBundleFile() {
+-      if (BuildConfig.DEBUG) {
+-        return super.getJSBundleFile();
+-      } else {
+-        return UpdatesController.getInstance().getLaunchAssetFile();
+-      }
+-    }
+-
+-    @Override
+-    protected @Nullable String getBundleAssetName() {
+-      if (BuildConfig.DEBUG) {
+-        return super.getBundleAssetName();
+-      } else {
+-        return UpdatesController.getInstance().getBundleAssetName();
+-      }
+-    }
+   };
+
+...
+
+   public void onCreate() {
+     super.onCreate();
+     SoLoader.init(this, /* native exopackage */ false);
+-
+-    if (!BuildConfig.DEBUG) {
+-      UpdatesController.initialize(this);
+-    }
+-
+     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+   }
+ }
+```
+
+#### Remove Pods Target EXUpdates (Optional)
+
+If, after following above steps, your `npm run ios` or `yarn ios` fails and you see `EXUpdates` in logs, follow the steps below:
+
+- Open the iOS directory in Xcode
+- Go to Pods module on right side
+- In the targets, find `EXUpdates`, right click and delete
